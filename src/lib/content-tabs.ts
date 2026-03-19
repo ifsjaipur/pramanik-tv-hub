@@ -40,18 +40,32 @@ async function fetchVideosForTags(tagged: CmsPlaylistTag[]): Promise<TaggedPlayl
   return results;
 }
 
-/** Get playlists for a single tag. */
+/** Get playlists for a single tag — cached as a whole tab result. */
 export async function getPlaylistsForTab(tag: PlaylistTag): Promise<TaggedPlaylist[]> {
-  const tagged = await getPlaylistsByTag(tag);
-  return fetchVideosForTags(tagged);
+  const { getCachedOrFetch, CACHE_TTL } = await import('@/lib/redis');
+  return getCachedOrFetch(
+    `tab:${tag}:playlists`,
+    async () => {
+      const tagged = await getPlaylistsByTag(tag);
+      return fetchVideosForTags(tagged);
+    },
+    CACHE_TTL.default
+  );
 }
 
-/** Get playlists for multiple tags (e.g. all pravachan sub-types). */
+/** Get playlists for multiple tags (e.g. all pravachan sub-types) — cached. */
 export async function getPlaylistsForTags(tags: PlaylistTag[]): Promise<TaggedPlaylist[]> {
-  const allTagged: CmsPlaylistTag[] = [];
-  const results = await Promise.all(tags.map((t) => getPlaylistsByTag(t)));
-  for (const r of results) allTagged.push(...r);
-  return fetchVideosForTags(allTagged);
+  const { getCachedOrFetch, CACHE_TTL } = await import('@/lib/redis');
+  return getCachedOrFetch(
+    `tab:${tags.join('+')}:playlists`,
+    async () => {
+      const allTagged: CmsPlaylistTag[] = [];
+      const results = await Promise.all(tags.map((t) => getPlaylistsByTag(t)));
+      for (const r of results) allTagged.push(...r);
+      return fetchVideosForTags(allTagged);
+    },
+    CACHE_TTL.default
+  );
 }
 
 /** Pravachan Archive: recent months as rows, older as grid. Includes both monthly and special. */
@@ -80,9 +94,16 @@ export async function getPravachanArchive(recentMonths = 3): Promise<{
   return { recent, older };
 }
 
-/** Get playlists marked showOnHome in CMS. */
+/** Get playlists marked showOnHome in CMS — cached. */
 export async function getHomeFeaturedPlaylists(): Promise<TaggedPlaylist[]> {
-  const { getHomePlaylistTags } = await import('@/lib/cms');
-  const tagged = await getHomePlaylistTags();
-  return fetchVideosForTags(tagged);
+  const { getCachedOrFetch, CACHE_TTL } = await import('@/lib/redis');
+  return getCachedOrFetch(
+    'tab:home-featured:playlists',
+    async () => {
+      const { getHomePlaylistTags } = await import('@/lib/cms');
+      const tagged = await getHomePlaylistTags();
+      return fetchVideosForTags(tagged);
+    },
+    CACHE_TTL.default
+  );
 }
