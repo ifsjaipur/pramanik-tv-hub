@@ -27,15 +27,15 @@ export const CACHE_KEYS = {
 };
 
 export const CACHE_TTL = {
-  pramansagarji: 21600,        // 6 hours
-  bestofshankasamadhan: 21600,
-  shankasamadhan: 21600,
-  jainpathshala: 43200,        // 12 hours (less frequent uploads)
-  liveStreams: 600,             // 10 min
-  upcomingStreams: 1800,        // 30 min
-  searchIndex: 21600,
+  pramansagarji: 43200,        // 12 hours
+  bestofshankasamadhan: 43200,
+  shankasamadhan: 43200,
+  jainpathshala: 86400,        // 24 hours (less frequent uploads)
+  liveStreams: 3600,            // 1 hour (search API is 100 units/call!)
+  upcomingStreams: 7200,        // 2 hours
+  searchIndex: 43200,
   videoDetail: 86400,          // 24 hours
-  default: 21600,              // 6 hours
+  default: 43200,              // 12 hours
 } as const;
 
 export async function getCachedOrFetch<T>(
