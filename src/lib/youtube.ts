@@ -318,11 +318,23 @@ export async function getVideoById(videoId: string): Promise<Video | null> {
   );
 }
 
-async function searchEventAllChannels(eventType: 'live' | 'upcoming'): Promise<Video[]> {
-  const channelKeys = Object.keys(CHANNELS) as ChannelKey[];
+// Only pramansagarji goes live — no need to burn quota on other channels
+const LIVE_CHANNELS: ChannelKey[] = ['pramansagarji'];
+
+function isLiveHoursIST(): boolean {
+  // Live streams happen 7 AM - 7 PM IST (UTC+5:30)
+  const now = new Date();
+  const istHour = (now.getUTCHours() + 5 + (now.getUTCMinutes() + 30 >= 60 ? 1 : 0)) % 24;
+  return istHour >= 7 && istHour < 19;
+}
+
+async function searchLiveChannels(eventType: 'live' | 'upcoming'): Promise<Video[]> {
+  // Skip search API entirely outside live hours (saves 100 units/call)
+  if (!isLiveHoursIST() && eventType === 'live') return [];
+
   const allVideos: Video[] = [];
   const results = await Promise.allSettled(
-    channelKeys.map(async (key) => {
+    LIVE_CHANNELS.map(async (key) => {
       const channel = CHANNELS[key];
       if (!channel.id) return [];
       const data = await ytFetch<{ items?: { id: { videoId: string } }[] }>('search', {
@@ -346,7 +358,7 @@ async function searchEventAllChannels(eventType: 'live' | 'upcoming'): Promise<V
 export async function getLiveStreams(): Promise<Video[]> {
   return getCachedOrFetch(
     CACHE_KEYS.liveStreams(),
-    () => searchEventAllChannels('live'),
+    () => searchLiveChannels('live'),
     CACHE_TTL.liveStreams
   );
 }
@@ -354,7 +366,7 @@ export async function getLiveStreams(): Promise<Video[]> {
 export async function getUpcomingStreams(): Promise<Video[]> {
   return getCachedOrFetch(
     CACHE_KEYS.upcomingStreams(),
-    () => searchEventAllChannels('upcoming'),
+    () => searchLiveChannels('upcoming'),
     CACHE_TTL.upcomingStreams
   );
 }
