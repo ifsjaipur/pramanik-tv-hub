@@ -1,0 +1,65 @@
+'use client';
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { Home, Heart, BookMarked, BookOpen, HelpCircle, Star, CalendarDays, Search } from 'lucide-react';
+
+const navItems = [
+  { href: '/', label: 'Home', labelHi: 'होम', icon: Home },
+  { href: '/bhawna-yog', label: 'Bhawna Yog', labelHi: 'भावना योग', icon: Heart },
+  { href: '/swadhyay', label: 'Swadhyay', labelHi: 'स्वाध्याय', icon: BookMarked },
+  { href: '/pravachan', label: 'Pravachan', labelHi: 'प्रवचन', icon: BookOpen },
+  { href: '/qa', label: 'Q&A', labelHi: 'शंका', icon: HelpCircle },
+  { href: '/kids', label: 'Kids', labelHi: 'बच्चे', icon: Star },
+  { href: '/events', label: 'Events', labelHi: 'आयोजन', icon: CalendarDays },
+  { href: '/search', label: 'Search', labelHi: 'खोज', icon: Search },
+];
+
+export default function TvSidebar() {
+  const pathname = usePathname();
+
+  return (
+    <aside className="fixed left-0 top-0 z-50 flex h-screen w-[220px] flex-col bg-neutral-950 border-r border-neutral-800/50">
+      {/* Logo */}
+      <div className="flex items-center gap-3 px-5 py-6">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-saffron-500 text-white font-bold text-lg">
+          P
+        </div>
+        <div>
+          <span className="text-lg font-bold text-white">Pramanik</span>
+          <p className="text-[10px] text-neutral-500 -mt-0.5">TV</p>
+        </div>
+      </div>
+
+      {/* Nav items */}
+      <nav className="flex-1 px-3 py-2">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
+
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              data-tv-nav="sidebar"
+              className={`tv-nav-item flex items-center gap-3 rounded-lg px-4 py-3 mb-1 text-sm font-medium ${
+                isActive
+                  ? 'bg-saffron-500/15 border-l-saffron-400 text-saffron-400'
+                  : 'text-neutral-400 hover:text-white'
+              }`}
+              tabIndex={0}
+            >
+              <Icon className="h-5 w-5 shrink-0" />
+              <span>{item.label}</span>
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* Bottom branding */}
+      <div className="px-5 py-4 border-t border-neutral-800/50">
+        <p className="text-[10px] text-neutral-600">Muni Pramansagar Ji</p>
+      </div>
+    </aside>
+  );
+}

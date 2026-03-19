@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --color-saffron-50: #FAF5ED;
+  --color-saffron-100: #F3E8D4;
+  --color-saffron-400: #f1b144;
+  --color-saffron-500: #654321;
+  --color-saffron-600: #533718;
+  --color-saffron-700: #3F2A12;
+  --color-maroon-800: #7B1D1D;
+  --color-maroon-900: #3D0C0C;
+  --color-gold-300: #F5D68A;
+  --color-gold-500: #C9932A;
+  --color-cream: #f9f3e7;
+  --font-sans: "DM Sans", "Noto Sans Devanagari", sans-serif;
+}
+
+/* TV is always dark */
+html {
+  color-scheme: dark;
+}
+
+body {
+  font-family: "DM Sans", "Noto Sans Devanagari", sans-serif;
+  background: #0a0a0a;
+  color: #e5e5e5;
+  overflow: hidden;
+  cursor: none;
+}
+
+/* Hide scrollbars everywhere */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+*::-webkit-scrollbar {
+  display: none;
+}
+* {
+  scrollbar-width: none;
+}
+
+/* TV Focus ring - glowing saffron border */
+.tv-focusable:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px #f1b144, 0 0 20px rgba(241, 177, 68, 0.4);
+  border-radius: 12px;
+  transform: scale(1.05);
+  z-index: 10;
+  position: relative;
+}
+
+.tv-focusable {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  outline: none;
+}
+
+/* Sidebar nav focus */
+.tv-nav-item:focus {
+  outline: none;
+  background: rgba(241, 177, 68, 0.15);
+  border-left: 3px solid #f1b144;
+  color: #f1b144;
+}
+
+.tv-nav-item {
+  transition: all 0.15s ease;
+  border-left: 3px solid transparent;
+}
+
+/* Video card scale on focus */
+.tv-card:focus {
+  outline: none;
+  transform: scale(1.08);
+  box-shadow: 0 0 0 3px #f1b144, 0 0 24px rgba(241, 177, 68, 0.35);
+  border-radius: 12px;
+  z-index: 20;
+  position: relative;
+}
+
+.tv-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  outline: none;
+}
+
+/* Row scroll animation */
+.tv-row {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Iframe focus for video player */
+iframe:focus {
+  outline: 3px solid #f1b144;
+  outline-offset: 2px;
+  border-radius: 12px;
+}
+
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}

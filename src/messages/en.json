@@ -1,0 +1,42 @@
+{
+  "nav": {
+    "home": "Home",
+    "discourses": "Discourses",
+    "qa": "Q&A",
+    "kids": "Kids",
+    "search": "Search"
+  },
+  "home": {
+    "liveNow": "Live Now",
+    "watchNow": "Watch Now",
+    "viewAll": "View All",
+    "newVideos": "New Videos",
+    "heroTitle": "Pramanik Video Hub",
+    "heroSubtitle": "Discourses, Bhawna Yog, Shanka Samadhan & Jain Pathshala"
+  },
+  "video": {
+    "share": "Share",
+    "shareWhatsApp": "Share on WhatsApp",
+    "shareFacebook": "Share on Facebook",
+    "copyLink": "Copy Link",
+    "linkCopied": "Link Copied!",
+    "relatedVideos": "Related Videos",
+    "watchOnYouTube": "Watch on YouTube",
+    "views": "views",
+    "live": "LIVE",
+    "upcoming": "Upcoming"
+  },
+  "search": {
+    "placeholder": "Search videos...",
+    "noResults": "No videos found",
+    "results": "results"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Try again",
+    "language": "Language",
+    "darkMode": "Dark Mode",
+    "lightMode": "Light Mode"
+  }
+}
