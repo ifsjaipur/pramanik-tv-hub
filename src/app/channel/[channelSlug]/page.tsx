@@ -5,7 +5,6 @@ import { getVideosByChannel } from '@/lib/youtube';
 import type { ChannelKey } from '@/types';
 import PaginatedVideoGrid from "@/components/video/PaginatedVideoGrid";
 
-export const dynamic = 'force-dynamic';
 export const revalidate = 3600;
 
 interface PageProps {

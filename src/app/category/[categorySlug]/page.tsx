@@ -4,7 +4,6 @@ import { getCategoryBySlug } from '@/config/categories';
 import { getVideosByCategory } from '@/lib/youtube';
 import PaginatedVideoGrid from "@/components/video/PaginatedVideoGrid";
 
-export const dynamic = 'force-dynamic';
 export const revalidate = 3600;
 
 interface PageProps {

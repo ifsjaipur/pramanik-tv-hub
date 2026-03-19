@@ -3,8 +3,6 @@ import { notFound } from 'next/navigation';
 import { getArticleBySlug } from '@/lib/cms';
 import ArticleContent from './ArticleContent';
 
-export const dynamic = 'force-dynamic';
-
 interface PageProps {
   params: Promise<{ slug: string }>;
 }

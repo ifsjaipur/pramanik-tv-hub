@@ -5,8 +5,6 @@ import Link from 'next/link';
 import type { ChannelKey } from '@/types';
 import { ChevronRight } from 'lucide-react';
 
-export const dynamic = 'force-dynamic';
-
 export default async function SwadhyayDetailPage({ params }: { params: Promise<{ playlistId: string }> }) {
   const { playlistId } = await params;
   const allTags = await getPlaylistTags();

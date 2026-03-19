@@ -1,7 +1,6 @@
 import { getPlaylistsForTab } from '@/lib/content-tabs';
 import VideoRow from '@/components/video/VideoRow';
 
-export const dynamic = 'force-dynamic';
 export const revalidate = 3600;
 
 export default async function QAPage() {

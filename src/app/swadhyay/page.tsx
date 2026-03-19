@@ -4,7 +4,6 @@ import { getArticlesBySection, getAudioTracksBySection, getPageLayout } from '@/
 import SectionContent from '@/components/section/SectionContent';
 import type { PageBlockType } from '@/types';
 
-export const dynamic = 'force-dynamic';
 export const revalidate = 3600;
 
 export default async function SwadhyayPage() {

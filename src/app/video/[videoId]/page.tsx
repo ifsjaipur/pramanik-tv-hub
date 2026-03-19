@@ -4,7 +4,6 @@ import { getVideoById, getRelatedVideos } from '@/lib/youtube';
 import TvVideoRow from '@/components/tv/TvVideoRow';
 import TvVideoEmbed from '@/components/tv/TvVideoEmbed';
 
-export const dynamic = 'force-dynamic';
 export const revalidate = 3600;
 
 interface PageProps {

@@ -4,7 +4,6 @@ import TvVideoRow from '@/components/tv/TvVideoRow';
 import { getSections, getActiveHighlights } from '@/lib/cms';
 import { getPlaylistsForTab, getPlaylistsForTags, getHomeFeaturedPlaylists } from '@/lib/content-tabs';
 
-export const dynamic = 'force-dynamic';
 export const revalidate = 3600;
 
 interface RowData {

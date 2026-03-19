@@ -4,7 +4,6 @@ import VideoRow from '@/components/video/VideoRow';
 import BhawnaYogContent from './BhawnaYogContent';
 import type { PageBlockType } from '@/types';
 
-export const dynamic = 'force-dynamic';
 export const revalidate = 3600;
 
 export default async function BhawnaYogPage() {
