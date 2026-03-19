@@ -3,6 +3,7 @@ import { DM_Sans, Noto_Sans_Devanagari } from 'next/font/google';
 import './globals.css';
 import TvSidebar from '@/components/tv/TvSidebar';
 import TvNavigation from '@/components/tv/TvNavigation';
+import TvContentWrapper from '@/components/tv/TvContentWrapper';
 import { ThemeProvider } from '@/components/ui/ThemeProvider';
 import { LanguageProvider } from '@/components/ui/LanguageProvider';
 
@@ -48,12 +49,9 @@ export default function RootLayout({
         <ThemeProvider>
           <LanguageProvider>
             <TvSidebar />
-            <main
-              id="tv-content"
-              className="ml-[220px] h-screen overflow-y-auto overflow-x-hidden scrollbar-hide"
-            >
+            <TvContentWrapper>
               {children}
-            </main>
+            </TvContentWrapper>
             <TvNavigation />
           </LanguageProvider>
         </ThemeProvider>

@@ -37,7 +37,7 @@ export default function TvVideoRow({
         {viewAllUrl && (
           <Link
             href={viewAllUrl}
-            className="tv-focusable flex items-center gap-1 rounded-full border border-saffron-400/30 bg-saffron-500/10 px-4 py-1.5 text-sm font-semibold text-saffron-400"
+            className="tv-card flex items-center gap-1 rounded-full border border-saffron-400/30 bg-saffron-500/10 px-4 py-1.5 text-sm font-semibold text-saffron-400"
             tabIndex={0}
           >
             View All

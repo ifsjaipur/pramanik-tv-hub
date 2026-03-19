@@ -3,6 +3,15 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
+declare global {
+  interface Window {
+    __tvApp?: boolean;
+    __tvSidebarOpen?: () => void;
+    __tvSidebarClose?: () => void;
+    __tvSidebarIsOpen?: () => boolean;
+  }
+}
+
 export default function TvNavigation() {
   const router = useRouter();
 
@@ -13,8 +22,12 @@ export default function TvNavigation() {
           'a[href], button, [tabindex="0"], iframe[tabindex]'
         )
       ).filter((el) => {
-        if (el.offsetParent === null && el.tagName !== 'IFRAME') return false;
-        return el.offsetWidth > 0 && el.offsetHeight > 0;
+        // Skip hidden elements (but allow sidebar overlay items when menu is open)
+        const rect = el.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return false;
+        // Skip elements that are off-screen to the left (hidden sidebar in app mode)
+        if (rect.right < 0) return false;
+        return true;
       });
     }
 
@@ -24,7 +37,23 @@ export default function TvNavigation() {
     }
 
     function isInSidebar(el: HTMLElement): boolean {
-      return !!el.closest('[data-tv-nav="sidebar"]') || !!el.getAttribute('data-tv-nav');
+      return !!el.closest('[data-tv-nav="sidebar"]') || el.getAttribute('data-tv-nav') === 'sidebar';
+    }
+
+    function isSidebarOpen(): boolean {
+      return window.__tvSidebarIsOpen?.() ?? false;
+    }
+
+    function isAtLeftEdge(el: HTMLElement): boolean {
+      // Check if this is the leftmost focusable in its row (no other content element to the left)
+      const items = getFocusables().filter(e => !isInSidebar(e));
+      const cur = center(el);
+      return !items.some(e => {
+        if (e === el) return false;
+        const c = center(e);
+        // Something to the left within the same vertical band
+        return c.x < cur.x - 20 && Math.abs(c.y - cur.y) < 80;
+      });
     }
 
     function findNearest(
@@ -39,11 +68,18 @@ export default function TvNavigation() {
 
       for (const el of items) {
         if (el === current) continue;
+        const elInSidebar = isInSidebar(el);
 
-        // If moving right from sidebar, only look at content area
-        if (direction === 'right' && currentInSidebar && isInSidebar(el)) continue;
-        // If moving left into sidebar, only look at sidebar items
-        if (direction === 'left' && !currentInSidebar && !isInSidebar(el)) continue;
+        // When sidebar overlay is open:
+        // - If in sidebar, right arrow should go to content (close sidebar)
+        // - If in content somehow, left arrow should go to sidebar
+        if (isSidebarOpen()) {
+          if (direction === 'right' && currentInSidebar && elInSidebar) continue;
+          if (direction === 'left' && !currentInSidebar && !elInSidebar) continue;
+        } else {
+          // Sidebar closed — skip sidebar items entirely
+          if (elInSidebar) continue;
+        }
 
         const c = center(el);
         const dx = c.x - cur.x;
@@ -87,9 +123,19 @@ export default function TvNavigation() {
         return;
       }
 
-      // Back button — go back in history
+      // Back button
       if (e.key === 'Escape' || e.keyCode === 27 || e.keyCode === 4) {
         e.preventDefault();
+        // If sidebar overlay is open, close it
+        if (isSidebarOpen()) {
+          window.__tvSidebarClose?.();
+          // Re-focus first content card
+          setTimeout(() => {
+            const firstCard = document.querySelector<HTMLElement>('.tv-card');
+            if (firstCard) firstCard.focus();
+          }, 50);
+          return;
+        }
         router.back();
         return;
       }
@@ -103,13 +149,47 @@ export default function TvNavigation() {
       if (dir) {
         e.preventDefault();
 
-        // If nothing focused, focus first sidebar item
+        // If nothing focused, focus first card
         if (!active || active === document.body || active === document.documentElement) {
-          const first = document.querySelector<HTMLElement>('[data-tv-nav="sidebar"]');
+          const first = document.querySelector<HTMLElement>('.tv-card');
           if (first) {
             first.focus();
             return;
           }
+        }
+
+        // LEFT at left edge of content -> open sidebar overlay (in app mode)
+        if (dir === 'left' && active && !isInSidebar(active) && !isSidebarOpen()) {
+          if (isAtLeftEdge(active)) {
+            // In app mode, open the sidebar overlay
+            if (window.__tvApp) {
+              window.__tvSidebarOpen?.();
+              // Focus first sidebar item after it slides in
+              setTimeout(() => {
+                const firstNav = document.querySelector<HTMLElement>('[data-tv-nav="sidebar"]');
+                if (firstNav) firstNav.focus();
+              }, 350);
+              return;
+            }
+            // In browser mode, focus the sidebar directly
+            const firstNav = document.querySelector<HTMLElement>('[data-tv-nav="sidebar"]');
+            if (firstNav) {
+              firstNav.focus();
+              return;
+            }
+          }
+        }
+
+        // RIGHT from sidebar -> close overlay and focus content
+        if (dir === 'right' && active && isInSidebar(active)) {
+          if (window.__tvApp) {
+            window.__tvSidebarClose?.();
+          }
+          setTimeout(() => {
+            const firstCard = document.querySelector<HTMLElement>('.tv-card');
+            if (firstCard) firstCard.focus();
+          }, 50);
+          return;
         }
 
         const next = findNearest(active!, dir);
@@ -131,7 +211,6 @@ export default function TvNavigation() {
             next.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
           }
         } else if (dir === 'down' && active && !isInSidebar(active)) {
-          // Scroll content area down
           const content = document.getElementById('tv-content');
           if (content) content.scrollBy({ top: 300, behavior: 'smooth' });
         } else if (dir === 'up' && active && !isInSidebar(active)) {
@@ -146,19 +225,27 @@ export default function TvNavigation() {
         if (active && active.tagName === 'IFRAME') {
           e.preventDefault();
           iframeFocused = true;
-          try {
-            active.querySelector('iframe')?.contentWindow?.postMessage(
-              '{"event":"command","func":"playVideo","args":""}', '*'
-            );
-          } catch {}
           (active as HTMLIFrameElement).contentWindow?.postMessage(
             '{"event":"command","func":"playVideo","args":""}', '*'
           );
-          active.click();
           return;
         }
         if (active && active !== document.body) {
           e.preventDefault();
+          // For Next.js Link elements, find the actual anchor and use programmatic navigation
+          const anchor = active.tagName === 'A' ? active as HTMLAnchorElement : active.querySelector('a');
+          if (anchor?.href) {
+            const url = new URL(anchor.href);
+            // Use router for internal navigation
+            if (url.origin === window.location.origin) {
+              // Close sidebar if open
+              if (isSidebarOpen()) {
+                window.__tvSidebarClose?.();
+              }
+              router.push(url.pathname + url.search);
+              return;
+            }
+          }
           active.click();
         }
       }
@@ -186,7 +273,7 @@ export default function TvNavigation() {
     });
     observer.observe(document.body, { childList: true, subtree: true });
 
-    // Auto-focus first content item after page load
+    // Auto-focus first content card after page load
     setTimeout(() => {
       setupIframes();
       const firstCard = document.querySelector<HTMLElement>('.tv-card');
